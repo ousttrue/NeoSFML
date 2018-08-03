@@ -14,6 +14,7 @@
  * Two modules are exposed to Python: ui and messages_from_ui.
  *
  * As for the first module (ui), it ultimately provides API for nvim. 
+
  * The Python script redirects all calls to UI by using this API.
  *
  * messages_from_ui is used to communicate events from

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <map>
 
-#include <PythonBindings.hpp> //runBridge
+#include <NVim/PythonBindings.hpp> //runBridge
 
 nvim::Neovim::Neovim(const InitData &initData, Signals &signals)
     : mGUIOptions(initData.font, initData.fontSize, initData.rows, initData.cols)

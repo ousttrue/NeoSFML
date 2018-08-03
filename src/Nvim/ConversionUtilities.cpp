@@ -1,9 +1,9 @@
 #include <Nvim/ConversionUtilities.hpp>
-
+#include <string>
 #include <cstdint>
 #include <cassert>
+#include <codecvt>
 
-#include <boost/locale/encoding_utf.hpp>
 
 sf::Color toColor(uint32_t value)
 {
@@ -15,10 +15,15 @@ sf::Color toColor(uint32_t value)
     return sf::Color(red, green, blue, 255/*alpha*/);
 }
 
-std::basic_string<char32_t> UTF8ToUTF32(const char *str, size_t length)
+std::basic_string<char32_t> UTF8ToUTF32(const char *str, uint32_t length)
 { 
     //could possibly be replaced with SFML sf::String::toUtf32
-    return boost::locale::conv::utf_to_utf<char32_t>(str, str + length);   
+    //return boost::locale::conv::utf_to_utf<char32_t>(str, str + length);   
+	// the UTF-8 - UTF-32 standard conversion facet
+	std::wstring_convert<std::codecvt_utf8<uint32_t>, uint32_t> cvt;
+	// UTF-8 to UTF-32
+	auto utf32 = cvt.from_bytes(str, str+length);
+	return std::u32string(utf32.begin(), utf32.end());
 }
 
 nvim::CellAttribute toCellAttribute(int32_t id, uint32_t value)
