@@ -1,3 +1,4 @@
+#include <plog/Log.h>
 #include <Nvim/PythonBindings.hpp>
 
 #include <Nvim/Blinky.hpp> //for access to Blinky::Mode
@@ -398,8 +399,18 @@ void nvim::runBridge(BridgeData &data)
 
             pName = PyUnicode_FromString(scriptName);
             pModule = PyImport_Import(pName);
-         
-            assert(pModule);
+			if (!pModule) {
+				//PyErr_Print();
+				PyObject *type, *value, *traceback;
+				PyErr_Fetch(&type, &value, &traceback);
+				if (type) {
+					auto pystr = PyObject_Str(value);
+					auto str = _PyUnicode_AsString(pystr);
+					LOGE << str;
+					PyErr_Restore(type, value, traceback);
+				}
+				exit(2);
+			}
         }
 
         ~Interpreter()
