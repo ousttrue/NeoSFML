@@ -9,7 +9,14 @@
 
 #include <thread> //for sleeping
 
+#if _DEBUG
+#undef _DEBUG
 #include <Python.h> //must be included last
+#define _DEBUG
+#else
+#include <Python.h> //must be included last
+#endif
+#include <frameobject.h>
 
 /* Python bindings are provided here.
  * Two modules are exposed to Python: ui and messages_from_ui.
@@ -393,8 +400,8 @@ void nvim::runBridge(BridgeData &data)
 
 			PySys_SetPath(
 				L"."
-				L";C:/vcpkg/installed/x64-windows/share/python3/Lib"
-				L";C:/vcpkg/installed/x64-windows/share/python3/Lib/site-packages"
+				L";C:/Python36-64/Lib"
+				L";C:/Python36-64/Lib/site-packages"
 			);
 			//auto sys_path = PySys_GetObject("path");
 			//PyList_Append(sys_path, PyUnicode_FromString("."));
@@ -415,6 +422,26 @@ void nvim::runBridge(BridgeData &data)
 					auto pystr = PyObject_Str(value);
 					auto str = _PyUnicode_AsString(pystr);
 					LOGE << str;
+
+					PyThreadState *tstate = PyThreadState_GET();
+					if (NULL != tstate && NULL != tstate->frame) {
+						auto frame = tstate->frame;
+
+						LOGE << "Python stack trace:";
+						while (NULL != frame) {
+							// int line = frame->f_lineno;
+							/*
+							frame->f_lineno will not always return the correct line number
+							you need to call PyCode_Addr2Line().
+							*/
+							int line = PyCode_Addr2Line(frame->f_code, frame->f_lasti);
+							const char *filename = _PyUnicode_AsString(frame->f_code->co_filename);
+							const char *funcname = _PyUnicode_AsString(frame->f_code->co_name);
+							LOGE << filename << line << funcname;
+							frame = frame->f_back;
+						}
+					}
+
 					PyErr_Restore(type, value, traceback);
 				}
 				exit(2);
