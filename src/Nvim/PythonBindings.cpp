@@ -389,15 +389,15 @@ void nvim::runBridge(BridgeData &data)
             PyImport_AppendInittab("ui", &PyInit_UI);
             PyImport_AppendInittab("messages_from_ui", &PyInit_MessagesFromUI);
 
-			PySys_SetPath(
-				L"C:/vcpkg/installed/x64-windows/share/python3/Lib"
-				L";C:/vcpkg/installed/x64-windows/share/python3/Lib/site-packages"
-			);
-
             Py_Initialize();
 
-			auto sys_path = PySys_GetObject("path");
-			PyList_Append(sys_path, PyUnicode_FromString("."));
+			PySys_SetPath(
+				L"."
+				L";C:/vcpkg/installed/x64-windows/share/python3/Lib"
+				L";C:/vcpkg/installed/x64-windows/share/python3/Lib/site-packages"
+			);
+			//auto sys_path = PySys_GetObject("path");
+			//PyList_Append(sys_path, PyUnicode_FromString("."));
 
             if (! PyEval_ThreadsInitialized())
                 PyEval_InitThreads();
